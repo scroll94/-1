@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Питон для Юных Волшебников 🐍✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1b2d;
+    --card: #162035;
+    --card2: #1a2744;
+    --yellow: #FFD93D;
+    --green: #6BCB77;
+    --blue: #4DBBFF;
+    --pink: #FF6B9D;
+    --orange: #FF9F43;
+    --purple: #C77DFF;
+    --text: #e8f0fe;
+    --muted: #8899bb;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Starfield */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 45%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 55% 20%, rgba(255,255,255,0.7) 0%, transparent 100%),
+      radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 85% 10%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 20% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 90% 75%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 90%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 50%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 5% 55%, rgba(255,255,255,0.5) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px 20px 60px;
+  }
+
+  /* HERO */
+  .hero {
+    text-align: center;
+    padding: 40px 20px 30px;
+    position: relative;
+  }
+
+  .snake-emoji {
+    font-size: 80px;
+    display: block;
+    animation: bounce 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(107,203,119,0.6));
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-15px) rotate(5deg); }
+  }
+
+  .hero h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    background: linear-gradient(135deg, var(--yellow), var(--green), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    margin: 16px 0 12px;
+  }
+
+  .hero p {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* PROGRESS BAR */
+  .progress-bar {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 30px 0 0;
+    flex-wrap: wrap;
+  }
+
+  .progress-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--card2);
+    border: 2px solid var(--muted);
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .progress-dot.done {
+    background: var(--green);
+    border-color: var(--green);
+    box-shadow: 0 0 8px var(--green);
+  }
+
+  /* SECTION TITLES */
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  /* LESSON CARDS */
+  .lesson {
+    background: var(--card);
+    border-radius: 24px;
+    padding: 28px;
+    margin-bottom: 24px;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .lesson:hover {
+    transform: translateY(-3px);
+  }
+
+  .lesson::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+
+  .lesson.yellow::before { background: linear-gradient(90deg, var(--yellow), var(--orange)); }
+  .lesson.green::before  { background: linear-gradient(90deg, var(--green), var(--blue)); }
+  .lesson.blue::before   { background: linear-gradient(90deg, var(--blue), var(--purple)); }
+  .lesson.pink::before   { background: linear-gradient(90deg, var(--pink), var(--purple)); }
+  .lesson.orange::before { background: linear-gradient(90deg, var(--orange), var(--yellow)); }
+
+  .lesson-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .lesson-icon {
+    font-size: 2.4rem;
+    flex-shrink: 0;
+  }
+
+  .lesson-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+
+  .lesson-title span {
+    display: block;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+  }
+
+  .lesson p {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #c0d0ee;
+    margin-bottom: 14px;
+  }
+
+  /* CODE BLOCKS */
+  .code-box {
+    background: #08111f;
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin: 16px 0;
+    position: relative;
+    border: 1px solid #1e3050;
+    overflow-x: auto;
+  }
+
+  .code-box .label {
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    background: var(--yellow);
+    color: #1a1000;
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 2px 10px;
+    border-radius: 20px;
+  }
+
+  .code-box pre {
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    white-space: pre;
+    color: #e8f0fe;
+  }
+
+  /* Syntax highlighting classes */
+  .kw   { color: #C77DFF; font-weight: bold; } /* keywords */
+  .fn   { color: #4DBBFF; }                    /* functions */
+  .str  { color: #FFD93D; }                    /* strings */
+  .num  { color: #FF9F43; }                    /* numbers */
+  .cmt  { color: #4a6080; font-style: italic; }/* comments */
+  .var  { color: #6BCB77; }                    /* variables */
+  .op   { color: #FF6B9D; }                    /* operators */
+
+  /* OUTPUT BOXES */
+  .output-box {
+    background: #0c1a2e;
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin: 10px 0;
+    border-left: 4px solid var(--green);
+  }
+
+  .output-box .out-label {
+    font-size: 0.72rem;
+    font-weight: 900;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .output-box p {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    margin: 0;
+    color: #aed6a0;
+    line-height: 1.5;
+  }
+
+  /* TIP BOXES */
+  .tip {
+    background: rgba(77,187,255,0.08);
+    border: 1.5px solid rgba(77,187,255,0.3);
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .tip .tip-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 1px; }
+
+  .tip p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #a0c8e8;
+    line-height: 1.6;
+  }
+
+  .tip strong { color: var(--blue); }
+
+  /* QUIZ */
+  .quiz {
+    background: var(--card2);
+    border-radius: 18px;
+    padding: 20px;
+    margin: 16px 0;
+    border: 2px solid rgba(255,217,61,0.2);
+  }
+
+  .quiz-q {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    color: var(--yellow);
+    margin-bottom: 14px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .quiz-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  @media (max-width: 500px) {
+    .quiz-options { grid-template-columns: 1fr; }
+  }
+
+  .quiz-btn {
+    background: var(--card);
+    border: 2px solid #2a3f60;
+    border-radius: 12px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+
+  .quiz-btn:hover { border-color: var(--blue); background: rgba(77,187,255,0.08); }
+  .quiz-btn.correct { border-color: var(--green); background: rgba(107,203,119,0.15); color: var(--green); }
+  .quiz-btn.wrong   { border-color: var(--pink);  background: rgba(255,107,157,0.1);  color: var(--pink); }
+
+  .quiz-feedback {
+    margin-top: 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    min-height: 24px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* TASK CARDS */
+  .task-card {
+    background: linear-gradient(135deg, rgba(107,203,119,0.1), rgba(77,187,255,0.08));
+    border: 2px solid rgba(107,203,119,0.25);
+    border-radius: 16px;
+    padding: 18px;
+    margin: 16px 0;
+  }
+
+  .task-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.05rem;
+    color: var(--green);
+    margin-bottom: 8px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .task-card p {
+    font-size: 0.95rem;
+    color: #90b8a0;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* CHEATSHEET */
+  .cheatsheet {
+    background: var(--card);
+    border-radius: 24px;
+    padding: 28px;
+    margin-top: 32px;
+    border: 2px solid rgba(199,125,255,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cheatsheet::after {
+    content: '⚡';
+    position: absolute;
+    right: 24px;
+    top: 24px;
+    font-size: 2rem;
+    opacity: 0.3;
+  }
+
+  .cheatsheet h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    color: var(--purple);
+    margin-bottom: 20px;
+  }
+
+  .cheat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  @media (max-width: 560px) {
+    .cheat-grid { grid-template-columns: 1fr; }
+  }
+
+  .cheat-item {
+    background: #0f1b2d;
+    border-radius: 12px;
+    padding: 12px 14px;
+    border: 1px solid #1e3050;
+  }
+
+  .cheat-item .ci-label {
+    font-size: 0.72rem;
+    font-weight: 900;
+    color: var(--purple);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .cheat-item code {
+    font-family: 'Courier New', monospace;
+    font-size: 0.88rem;
+    color: var(--yellow);
+    line-height: 1.6;
+    display: block;
+  }
+
+  /* BADGE */
+  .badge-section {
+    text-align: center;
+    padding: 40px 20px;
+    position: relative;
+  }
+
+  .badge {
+    display: inline-block;
+    background: radial-gradient(circle at 40% 40%, #2a1a50, #0f1b2d);
+    border: 3px solid var(--purple);
+    border-radius: 50%;
+    width: 130px; height: 130px;
+    line-height: 130px;
+    font-size: 4rem;
+    box-shadow: 0 0 30px rgba(199,125,255,0.4), inset 0 0 20px rgba(199,125,255,0.1);
+    animation: pulse 3s ease-in-out infinite;
+    margin-bottom: 16px;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 30px rgba(199,125,255,0.4); }
+    50% { box-shadow: 0 0 60px rgba(199,125,255,0.7); }
+  }
+
+  .badge-section h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, var(--purple), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .badge-section p {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #2a3f60; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- HERO -->
+  <div class="hero">
+    <span class="snake-emoji">🐍</span>
+    <h1>Питон для<br>Юных Волшебников</h1>
+    <p>Научись создавать магию с помощью кода! Питон — это язык программирования, которым пользуются учёные, игроделы и изобретатели.</p>
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <!-- LESSON 1 -->
+  <div class="lesson yellow" data-lesson="0">
+    <div class="lesson-header">
+      <div class="lesson-icon">👋</div>
+      <div class="lesson-title">
+        <span>Урок 1</span>
+        Привет, мир!
+      </div>
+    </div>
+
+    <p>Самая первая программа, которую пишут все программисты — это «Привет, мир!». Питон умеет показывать текст на экране с помощью команды <code style="color:var(--blue)">print()</code>.</p>
+
+    <div class="code-box">
+      <span class="label">💻 Код</span>
+      <pre><span class="fn">print</span>(<span class="str">"Привет, мир!"</span>)
+<span class="fn">print</span>(<span class="str">"Меня зовут Питон 🐍"</span>)
+<span class="fn">print</span>(<span class="str">"Я умею считать: 2 + 2 ="</span>, <span class="num">2</span> <span class="op">+</span> <span class="num">2</span>)</pre>
+    </div>
+
+    <div class="output-box">
+      <div class="out-label">📺 Результат</div>
+      <p>Привет, мир!<br>Меня зовут Питон 🐍<br>Я умею считать: 2 + 2 = 4</p>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">💡</span>
+      <p><strong>Запомни!</strong> Текст всегда пишется в кавычках <code>"вот так"</code>. Без кавычек Питон не поймёт, что это слова, а не команды.</p>
+    </div>
+
+    <div class="quiz" id="quiz1">
+      <div class="quiz-q">❓ Какая команда выводит текст на экран?</div>
+      <div class="quiz-options">
+        <button class="quiz-btn" onclick="checkQuiz(this, false, 'quiz1')">🖨️ show()</button>
+        <button class="quiz-btn" onclick="checkQuiz(this, true, 'quiz1')">📺 print()</button>
+        <button class="quiz-btn" onclick="checkQuiz(this, false, 'quiz1')">📢 display()</button>
+        <button class="quiz-btn" onclick="checkQuiz(this, false, 'quiz1')">🔊 say()</button>
+      </div>
+      <div class="quiz-feedback" id="quiz1-fb"></div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-title">🎯 Задание</div>
+      <p>Напиши программу, которая выводит твоё имя, возраст и любимое животное. Используй три строчки print()!</p>
+    </div>
+  </div>
+
+  <!-- LESSON 2 -->
+  <div class="lesson green" data-lesson="1">
+    <div class="lesson-header">
+      <div class="lesson-icon">📦</div>
+      <div class="lesson-title">
+        <span>Урок 2</span>
+        Переменные — коробки для данных
+      </div>
+    </div>
+
+    <p>Представь, что переменная — это коробка с наклейкой. На наклейке написано имя коробки, а внутри лежат данные. Ты можешь положить туда что угодно!</p>
+
+    <div class="code-box">
+      <span class="label">💻 Код</span>
+      <pre><span class="var">имя</span> <span class="op">=</span> <span class="str">"Алиса"</span>          <span class="cmt"># текст</span>
+<span class="var">возраст</span> <span class="op">=</span> <span class="num">9</span>             <span class="cmt"># число</span>
+<span class="var">рост</span> <span class="op">=</span> <span class="num">135.5</span>          <span class="cmt"># дробное число</span>
+<span class="var">любит_кошек</span> <span class="op">=</span> <span class="kw">True</span>    <span class="cmt"># да/нет</span>
+
+<span class="fn">print</span>(<span class="str">"Привет, меня зовут"</span>, <span class="var">имя</span>)
+<span class="fn">print</span>(<span class="str">"Мне"</span>, <span class="var">возраст</span>, <span class="str">"лет"</span>)
+<span class="fn">print</span>(<span class="str">"Через год мне будет"</span>, <span class="var">возраст</span> <span class="op">+</span> <span class="num">1</span>)</pre>
+    </div>
+
+    <div class="output-box">
+      <div class="out-label">📺 Результат</div>
+      <p>Привет, меня зовут Алиса<br>Мне 9 лет<br>Через год мне будет 10</p>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">🎁</span>
+      <p>В Питоне есть <strong>4 вида данных</strong>: текст (str), целые числа (int), дробные (float) и правда/ложь (bool — True/False).</p>
+    </div>
+
+    <div class="quiz" id="quiz2">
+      <div class="quiz-q">❓ Что хранится в переменной: <code style="color:var(--yellow)">x = 42</code>?</div>
+      <div class="quiz-options">
+        <button class="quiz-btn" onclick="checkQuiz(this, false, 'quiz2')">💬 Текст "42"</button>
+        <button class="quiz-btn" onclick="checkQuiz(this, true, 'quiz2')">🔢 Число 42</button>
+        <button class="quiz-btn" onclick="checkQuiz(this, false, 'quiz2')">✅ True или False</button>
+        <button class="quiz-btn" onclick="checkQuiz(this, false, 'quiz2')">❌ Ничего</button>
+      </div>
+      <div class="quiz-feedback" id="quiz2-fb"></div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-title">🎯 Задание</div>
+      <p>Создай три переменные: твоё имя, любимый цвет и количество домашних животных. Потом выведи их красивым текстом на экран!</p>
+    </div>
+  </div>
+
+  <!-- LESSON 3 -->
+  <div class="lesson blue" data-lesson="2">
+    <div class="lesson-header">
+      <div class="lesson-icon">🧮</div>
+      <div class="lesson-title">
+        <span>Урок 3</span>
+        Питон — умный калькулятор
+      </div>
+    </div>
+
+    <p>Питон умеет считать лучше любого калькулятора! Посмотри на все операции, которые он знает:</p>
+
+    <div class="code-box">
+      <span class="label">💻 Код</span>
+      <pre><span class="fn">print</span>(<span class="num">10</span> <span class="op">+</span> <span class="num">5</span>)    <span class="cmt"># Сложение → 15</span>
+<span class="fn">print</span>(<span class="num">10</span> <span class="op">-</span> <span class="num">3</span>)    <span class="cmt"># Вычитание → 7</span>
+<span class="fn">print</span>(<span class="num">4</span> <span class="op">*</span> <span class="num">6</span>)     <span class="cmt"># Умножение → 24</span>
+<span class="fn">print</span>(<span class="num">15</span> <span class="op">/</span> <span class="num">2</span>)    <span class="cmt"># Деление → 7.5</span>
+<span class="fn">print</span>(<span class="num">15</span> <span class="op">//</span> <span class="num">2</span>)   <span class="cmt"># Деление без остатка → 7</span>
+<span class="fn">print</span>(<span class="num">15</span> <span class="op">%</span> <span class="num">2</span>)    <span class="cmt"># Остаток от деления → 1</span>
+<span class="fn">print</span>(<span class="num">2</span> <span class="op">**</span> <span class="num">8</span>)    <span class="cmt"># Степень → 256</span>
+
+<span class="cmt"># Считаем площадь комнаты!</span>
+<span class="var">длина</span> <span class="op">=</span> <span class="num">5</span>
+<span class="var">ширина</span> <span class="op">=</span> <span class="num">4</span>
+<span class="var">площадь</span> <span class="op">=</span> <span class="var">длина</span> <span class="op">*</span> <span class="var">ширина</span>
+<span class="fn">print</span>(<span class="str">"Площадь комнаты:"</span>, <span class="var">площадь</span>, <span class="str">"м²"</span>)</pre>
+    </div>
+
+    <div class="output-box">
+      <div class="out-label">📺 Результат</div>
+      <p>15 · 7 · 24 · 7.5 · 7 · 1 · 256<br>Площадь комнаты: 20 м²</p>
+    </div>
+
+    <div class="quiz" id="quiz3">
+      <div class="quiz-q">❓ Что выведет: <code style="color:var(--yellow)">print(17 % 5)</code>?</div>
+      <div class="quiz-options">
+        <button class="quiz-btn" onclick="checkQuiz(this, false, 'quiz3')">3.4</button>
+        <button class="quiz-btn" onclick="checkQuiz(this, false, 'quiz3')">3</button>
+        <button class="quiz-btn" onclick="checkQuiz(this, true, 'quiz3')">2</button>
+        <button class="quiz-btn" onclick="checkQuiz(this, false, 'quiz3')">85</button>
+      </div>
+      <div class="quiz-feedback" id="quiz3-fb"></div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-title">🎯 Задание</div>
+      <p>Напиши программу, которая считает сколько пицц нужно на твой день рождения. Если придут 20 гостей, а в каждой пицце 8 кусков — сколько пицц нужно? Используй // и %!</p>
+    </div>
+  </div>
+
+  <!-- LESSON 4 -->
+  <div class="lesson pink" data-lesson="3">
+    <div class="lesson-header">
+      <div class="lesson-icon">🤔</div>
+      <div class="lesson-title">
+        <span>Урок 4</span>
+        Если... то... иначе!
+      </div>
+    </div>
+
+    <p>Питон умеет принимать решения! Команда <code style="color:var(--blue)">if</code> проверяет условие и выполняет разный код в зависимости от ответа.</p>
+
+    <div class="code-box">
+      <span class="label">💻 Код</span>
+      <pre><span class="var">возраст</span> <span class="op">=</span> <span class="num">9</span>
+
+<span class="kw">if</span> <span class="var">возраст</span> <span class="op">&gt;=</span> <span class="num">18</span>:
+    <span class="fn">print</span>(<span class="str">"Ты взрослый!"</span>)
+<span class="kw">elif</span> <span class="var">возраст</span> <span class="op">&gt;=</span> <span class="num">13</span>:
+    <span class="fn">print</span>(<span class="str">"Ты подросток"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"Ты ребёнок 🧒"</span>)
+
+<span class="cmt"># Угадай число!</span>
+<span class="var">секретное</span> <span class="op">=</span> <span class="num">7</span>
+<span class="var">догадка</span> <span class="op">=</span> <span class="num">5</span>
+
+<span class="kw">if</span> <span class="var">догадка</span> <span class="op">==</span> <span class="var">секретное</span>:
+    <span class="fn">print</span>(<span class="str">"🎉 Угадал!"</span>)
+<span class="kw">elif</span> <span class="var">догадка</span> <span class="op">&lt;</span> <span class="var">секретное</span>:
+    <span class="fn">print</span>(<span class="str">"📈 Больше!"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"📉 Меньше!"</span>)</pre>
+    </div>
+
+    <div class="output-box">
+      <div class="out-label">📺 Результат</div>
+      <p>Ты ребёнок 🧒<br>📈 Больше!</p>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">⚖️</span>
+      <p>Знаки сравнения: <strong>== равно, != не равно, &gt; больше, &lt; меньше, &gt;= больше или равно, &lt;= меньше или равно</strong>. Не путай = (присвоить) и == (сравнить)!</p>
+    </div>
+
+    <div class="quiz" id="quiz4">
+      <div class="quiz-q">❓ Что выведет программа, если <code style="color:var(--yellow)">x = 10</code>, <code style="color:var(--yellow)">if x > 5: print("А") else: print("Б")</code>?</div>
+      <div class="quiz-options">
+        <button class="quiz-btn" onclick="checkQuiz(this, true, 'quiz4')">А</button>
+        <button class="quiz-btn" onclick="checkQuiz(this, false, 'quiz4')">Б</button>
+        <button class="quiz-btn" onclick="checkQuiz(this, false, 'quiz4')">А и Б</button>
+        <button class="quiz-btn" onclick="checkQuiz(this, false, 'quiz4')">Ничего</button>
+      </div>
+      <div class="quiz-feedback" id="quiz4-fb"></div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-title">🎯 Задание</div>
+      <p>Напиши программу «Оценки»: если баллов больше 90 — «Отлично!», от 70 до 90 — «Хорошо», меньше 70 — «Нужно позаниматься». Попробуй разные числа!</p>
+    </div>
+  </div>
+
+  <!-- LESSON 5 -->
+  <div class="lesson orange" data-lesson="4">
+    <div class="lesson-header">
+      <div class="lesson-icon">🔄</div>
+      <div class="lesson-title">
+        <span>Урок 5</span>
+        Циклы — делай много раз!
+      </div>
+    </div>
+
+    <p>Цикл — это суперсила программиста! Вместо того чтобы писать одно и то же 100 раз, просто скажи Питону: «повтори это!»</p>
+
+    <div class="code-box">
+      <span class="label">💻 Код — цикл for</span>
+      <pre><span class="cmt"># Считаем от 1 до 5</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">6</span>):
+    <span class="fn">print</span>(<span class="str">"Шаг номер"</span>, <span class="var">i</span>)
+
+<span class="cmt"># Таблица умножения на 3</span>
+<span class="kw">for</span> <span class="var">число</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">11</span>):
+    <span class="fn">print</span>(<span class="str">"3 ×"</span>, <span class="var">число</span>, <span class="str">"="</span>, <span class="num">3</span> <span class="op">*</span> <span class="var">число</span>)
+
+<span class="cmt"># Рисуем лесенку звёздочками</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">6</span>):
+    <span class="fn">print</span>(<span class="str">"⭐"</span> <span class="op">*</span> <span class="var">i</span>)</pre>
+    </div>
+
+    <div class="output-box">
+      <div class="out-label">📺 Результат (лесенка)</div>
+      <p>⭐<br>⭐⭐<br>⭐⭐⭐<br>⭐⭐⭐⭐<br>⭐⭐⭐⭐⭐</p>
+    </div>
+
+    <div class="code-box">
+      <span class="label">💻 Код — цикл while</span>
+      <pre><span class="cmt"># Считаем, пока не дойдём до 5</span>
+<span class="var">счёт</span> <span class="op">=</span> <span class="num">0</span>
+<span class="kw">while</span> <span class="var">счёт</span> <span class="op">&lt;</span> <span class="num">5</span>:
+    <span class="fn">print</span>(<span class="str">"Счёт:"</span>, <span class="var">счёт</span>)
+    <span class="var">счёт</span> <span class="op">=</span> <span class="var">счёт</span> <span class="op">+</span> <span class="num">1</span>
+<span class="fn">print</span>(<span class="str">"Готово! 🚀"</span>)</pre>
+    </div>
+
+    <div class="tip">
+      <span class="tip-icon">⚠️</span>
+      <p><strong>Осторожно!</strong> В цикле while всегда нужно изменять переменную, иначе цикл никогда не остановится — это называется «бесконечный цикл»!</p>
+    </div>
+
+    <div class="quiz" id="quiz5">
+      <div class="quiz-q">❓ Сколько раз выполнится: <code style="color:var(--yellow)">for i in range(3)</code>?</div>
+      <div class="quiz-options">
+        <button class="quiz-btn" onclick="checkQuiz(this, false, 'quiz5')">2 раза</button>
+        <button class="quiz-btn" onclick="checkQuiz(this, true, 'quiz5')">3 раза</button>
+        <button class="quiz-btn" onclick="checkQuiz(this, false, 'quiz5')">4 раза</button>
+        <button class="quiz-btn" onclick="checkQuiz(this, false, 'quiz5')">0 раз</button>
+      </div>
+      <div class="quiz-feedback" id="quiz5-fb"></div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-title">🎯 Задание</div>
+      <p>Напиши программу, которая выводит все чётные числа от 2 до 20. Подсказка: используй range(2, 21, 2) — третье число это «шаг»!</p>
+    </div>
+  </div>
+
+  <!-- LESSON 6 -->
+  <div class="lesson yellow" data-lesson="5">
+    <div class="lesson-header">
+      <div class="lesson-icon">🛠️</div>
+      <div class="lesson-title">
+        <span>Урок 6</span>
+        Функции — твои суперсилы
+      </div>
+    </div>
+
+    <p>Функция — это мини-программа внутри программы. Придумай её один раз — и используй хоть тысячу раз! Создаётся с помощью слова <code style="color:var(--blue)">def</code>.</p>
+
+    <div class="code-box">
+      <span class="label">💻 Код</span>
+      <pre><span class="cmt"># Создаём функцию</span>
+<span class="kw">def</span> <span class="fn">поздороваться</span>(<span class="var">имя</span>):
+    <span class="fn">print</span>(<span class="str">"Привет,!"</span>, <span class="var">имя</span>, <span class="str">"👋"</span>)
+
+<span class="cmt"># Используем её</span>
+<span class="fn">поздороваться</span>(<span class="str">"Артём"</span>)
+<span class="fn">поздороваться</span>(<span class="str">"Маша"</span>)
+<span class="fn">поздороваться</span>(<span class="str">"Дракон"</span>)
+
+<span class="cmt"># Функция с возвратом результата</span>
+<span class="kw">def</span> <span class="fn">сложить</span>(<span class="var">а</span>, <span class="var">б</span>):
+    <span class="var">результат</span> <span class="op">=</span> <span class="var">а</span> <span class="op">+</span> <span class="var">б</span>
+    <span class="kw">return</span> <span class="var">результат</span>
+
+<span class="var">сумма</span> <span class="op">=</span> <span class="fn">сложить</span>(<span class="num">15</span>, <span class="num">27</span>)
+<span class="fn">print</span>(<span class="str">"15 + 27 ="</span>, <span class="var">сумма</span>)</pre>
+    </div>
+
+    <div class="output-box">
+      <div class="out-label">📺 Результат</div>
+      <p>Привет! Артём 👋<br>Привет! Маша 👋<br>Привет! Дракон 👋<br>15 + 27 = 42</p>
+    </div>
+
+    <div class="quiz" id="quiz6">
+      <div class="quiz-q">❓ Какое слово используется для создания функции?</div>
+      <div class="quiz-options">
+        <button class="quiz-btn" onclick="checkQuiz(this, false, 'quiz6')">function</button>
+        <button class="quiz-btn" onclick="checkQuiz(this, false, 'quiz6')">create</button>
+        <button class="quiz-btn" onclick="checkQuiz(this, true, 'quiz6')">def</button>
+        <button class="quiz-btn" onclick="checkQuiz(this, false, 'quiz6')">make</button>
+      </div>
+      <div class="quiz-feedback" id="quiz6-fb"></div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-title">🎯 Финальное задание 🏆</div>
+      <p>Создай функцию <strong>угадай_животное(подсказка)</strong>, которая принимает подсказку и выводит «Это кот!», «Это собака!» или «Не знаю!» в зависимости от текста. Используй if/elif/else внутри функции!</p>
+    </div>
+  </div>
+
+  <!-- CHEATSHEET -->
+  <div class="cheatsheet">
+    <h2>⚡ Шпаргалка юного питониста</h2>
+    <div class="cheat-grid">
+
+      <div class="cheat-item">
+        <div class="ci-label">📺 Вывод</div>
+        <code>print("текст")
+print("x =", x)</code>
+      </div>
+
+      <div class="cheat-item">
+        <div class="ci-label">📦 Переменные</div>
+        <code>имя = "Алиса"
+возраст = 9
+рост = 1.35
+живой = True</code>
+      </div>
+
+      <div class="cheat-item">
+        <div class="ci-label">🧮 Математика</div>
+        <code>+ - * /
+// (без остатка)
+% (остаток)
+** (степень)</code>
+      </div>
+
+      <div class="cheat-item">
+        <div class="ci-label">⚖️ Сравнение</div>
+        <code>== != > < >= <=
+and or not</code>
+      </div>
+
+      <div class="cheat-item">
+        <div class="ci-label">🤔 Условие</div>
+        <code>if условие:
+    ...
+elif другое:
+    ...
+else:
+    ...</code>
+      </div>
+
+      <div class="cheat-item">
+        <div class="ci-label">🔄 Цикл for</div>
+        <code>for i in range(5):
+    print(i)
+for i in range(1, 10, 2):
+    print(i)</code>
+      </div>
+
+      <div class="cheat-item">
+        <div class="ci-label">🔄 Цикл while</div>
+        <code>x = 0
+while x < 5:
+    print(x)
+    x = x + 1</code>
+      </div>
+
+      <div class="cheat-item">
+        <div class="ci-label">🛠️ Функция</div>
+        <code>def моя_функция(а, б):
+    результат = а + б
+    return результат</code>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BADGE -->
+  <div class="badge-section">
+    <div class="badge" id="mainBadge">🏆</div>
+    <h2>Ты — юный программист!</h2>
+    <p>Прошёл 6 уроков • Ответил на вопросы • Готов создавать своё первое приложение!</p>
+  </div>
+
+</div>
+
+<script>
+  // Quiz logic
+  function checkQuiz(btn, isCorrect, quizId) {
+    const quiz = document.getElementById(quizId);
+    const buttons = quiz.querySelectorAll('.quiz-btn');
+    const feedback = document.getElementById(quizId + '-fb');
+
+    buttons.forEach(b => b.disabled = true);
+
+    if (isCorrect) {
+      btn.classList.add('correct');
+      feedback.innerHTML = '🎉 <span style="color:var(--green)">Правильно! Молодец!</span>';
+      markLessonDone(quizId);
+    } else {
+      btn.classList.add('wrong');
+      feedback.innerHTML = '💪 <span style="color:var(--pink)">Не совсем... Попробуй перечитать урок!</span>';
+    }
+    updateProgress();
+  }
+
+  const done = {};
+  function markLessonDone(quizId) {
+    done[quizId] = true;
+  }
+
+  // Progress dots
+  const quizIds = ['quiz1','quiz2','quiz3','quiz4','quiz5','quiz6'];
+  const bar = document.getElementById('progressBar');
+  quizIds.forEach((q, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot';
+    dot.id = 'dot-' + q;
+    bar.appendChild(dot);
+  });
+
+  function updateProgress() {
+    quizIds.forEach(q => {
+      const dot = document.getElementById('dot-' + q);
+      if (done[q]) dot.classList.add('done');
+    });
+
+    const count = Object.keys(done).length;
+    if (count === 6) {
+      document.getElementById('mainBadge').textContent = '🌟';
+      document.getElementById('mainBadge').style.animation = 'pulse 1s ease-in-out infinite';
+    }
+  }
+
+  updateProgress();
+</script>
+
+</body>
+</html>
