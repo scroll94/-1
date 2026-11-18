@@ -90,7 +90,7 @@ export default async function UsersPage({
                   <form action={updateUser} className="flex items-center gap-2">
                     <input type="hidden" name="id" value={u.id} />
                     <input type="hidden" name="full_name" value={u.full_name} />
-                    <select name="role" defaultValue={u.role} className="input w-40 py-2" aria-label="Роль">
+                    <select name="role" defaultValue={u.role} className="input w-[11.5rem] py-2" aria-label="Роль">
                       {Object.entries(ROLE_LABELS).map(([k, v]) => (
                         <option key={k} value={k}>{v}</option>
                       ))}

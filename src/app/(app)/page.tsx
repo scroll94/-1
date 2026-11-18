@@ -72,7 +72,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           </div>
         )}
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
           <StatCard icon="layers" label="Мои классы" value={classes.length} href="/classes" />
           <StatCard icon="clipboard" label="Нужно сдать" value={todo.length} tone="amber" />
           <StatCard icon="award" label="Средний результат" value={avg === null ? "—" : `${avg}%`} tone="emerald" href="/grades" />
@@ -168,7 +168,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       <PageTop hello={hello} isAdmin={isAdmin} />
       <Flash error={sp.error} ok={sp.ok} />
 
-      <div className={`grid gap-4 sm:grid-cols-2 ${isAdmin ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
+      <div className={`grid grid-cols-2 gap-3 sm:gap-4 ${isAdmin ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
         <StatCard icon="layers" label={isAdmin ? "Классов" : "Мои классы"} value={classes.length} href="/classes" />
         <StatCard icon="users" label="Учеников в классах" value={studentsInClasses} tone="sky" />
         <StatCard icon="inbox" label="Ждут проверки" value={pending.length} tone="amber" />

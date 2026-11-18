@@ -76,8 +76,8 @@ export function StatCard({
     rose: "bg-rose-50 text-rose-600",
   };
   const inner = (
-    <div className="flex items-center gap-4 p-5">
-      <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${tones[tone]}`}>
+    <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4 sm:p-5">
+      <div className={`flex h-10 w-10 items-center justify-center rounded-xl sm:h-11 sm:w-11 ${tones[tone]}`}>
         <Icon name={icon} className="h-5 w-5" />
       </div>
       <div>
