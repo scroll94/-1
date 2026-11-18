@@ -26,14 +26,15 @@ async function createFirstAdmin(formData: FormData) {
     redirect(withMsg("/setup", "error", "Заполните все поля. Логин — латиницей, пароль — минимум 8 символов."));
   }
   const admin = createAdminClient();
-  const { error } = await admin.auth.admin.createUser({
+  const { data, error } = await admin.auth.admin.createUser({
     email: loginToEmail(login),
     password,
     email_confirm: true,
     user_metadata: { full_name: fullName },
     app_metadata: { role: "admin" },
   });
-  if (error) redirect(withMsg("/setup", "error", error.message));
+  if (error || !data.user) redirect(withMsg("/setup", "error", error?.message ?? "Ошибка"));
+  await admin.from("profiles").update({ role: "admin", full_name: fullName }).eq("id", data.user.id);
   redirect(withMsg("/login", "ok", "Администратор создан. Войдите."));
 }
 

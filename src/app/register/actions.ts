@@ -37,6 +37,7 @@ export async function register(_prev: string | null, fd: FormData): Promise<stri
     return "Не удалось зарегистрироваться: " + (error?.message ?? "неизвестная ошибка");
   }
 
+  await admin.from("profiles").update({ role: "student", full_name: fullName }).eq("id", created.user.id);
   if (classId) {
     await admin.from("class_students").insert({ class_id: classId, student_id: created.user.id });
   }

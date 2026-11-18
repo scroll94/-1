@@ -24,7 +24,7 @@ export async function createUser(formData: FormData) {
   if (password.length < 6) redirect(withMsg(PATH, "error", "Пароль должен быть не короче 6 символов"));
 
   const admin = createAdminClient();
-  const { error } = await admin.auth.admin.createUser({
+  const { data: created, error } = await admin.auth.admin.createUser({
     email: loginToEmail(login),
     password,
     email_confirm: true,
@@ -32,6 +32,9 @@ export async function createUser(formData: FormData) {
     app_metadata: { role },
   });
   if (error) redirect(withMsg(PATH, "error", /already|exists|registered/i.test(error.message) ? "Этот логин уже занят" : "Не удалось создать: " + error.message));
+  if (created?.user) {
+    await admin.from("profiles").update({ role, full_name: fullName }).eq("id", created.user.id);
+  }
   revalidatePath(PATH);
   redirect(withMsg(PATH, "ok", `Пользователь «${fullName}» создан`));
 }
