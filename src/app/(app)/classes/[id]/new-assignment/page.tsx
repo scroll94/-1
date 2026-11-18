@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { canEditClass, getSession } from "@/lib/auth";
 import { AssignmentForm } from "@/components/AssignmentForm";
 import type { Row } from "@/lib/utils";
+import { PageHeader } from "@/components/ui";
 
 export default async function NewAssignmentPage({
   params,
@@ -25,10 +25,9 @@ export default async function NewAssignmentPage({
   const lessons = ((data ?? []) as Row[]).map((l) => ({ id: l.id, title: `${l.courses?.title} — ${l.title}` }));
 
   return (
-    <div className="space-y-4">
-      <Link href={`/classes/${id}`} className="text-sm">← {cls.name}</Link>
-      <h1>Новое задание</h1>
-      <div className="card">
+    <div>
+      <PageHeader title="Новое задание" back={{ href: `/classes/${id}`, label: cls.name }} />
+      <div className="card max-w-3xl">
         <AssignmentForm classId={id} lessons={lessons} defaultLessonId={sp.lesson} />
       </div>
     </div>

@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { Flash } from "@/components/Flash";
 import { ConfirmButton } from "@/components/ConfirmButton";
+import { Icon } from "@/components/Icon";
+import { JoinCode } from "@/components/JoinCode";
+import { Avatar, EmptyState, PageHeader } from "@/components/ui";
 import { emailToLogin, type Row } from "@/lib/utils";
 import { addStudents, deleteClass, removeStudent, updateClass } from "../actions";
 
@@ -16,7 +19,7 @@ export default async function AdminClassPage({
   const { id } = await params;
   const sp = await searchParams;
   const { supabase } = await requireRole("admin");
-  const { data: cls } = await supabase.from("classes").select("id, name, teacher_id").eq("id", id).single();
+  const { data: cls } = await supabase.from("classes").select("id, name, teacher_id, join_code").eq("id", id).single();
   if (!cls) notFound();
 
   const [{ data: teachersData }, { data: membersData }, { data: studentsData }] = await Promise.all([
@@ -33,23 +36,30 @@ export default async function AdminClassPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1>{cls.name}</h1>
-        <Link href={`/classes/${id}`} className="btn-secondary">Открыть класс (уроки и ДЗ) →</Link>
-      </div>
+      <PageHeader
+        title={cls.name}
+        back={{ href: "/admin/classes", label: "Все классы" }}
+        actions={
+          <Link href={`/classes/${id}`} className="btn-secondary">
+            <Icon name="book" className="h-4 w-4" /> Уроки и задания
+          </Link>
+        }
+      />
       <Flash error={sp.error} ok={sp.ok} />
 
+      <JoinCode classId={id} code={cls.join_code} back={`/admin/classes/${id}`} />
+
       <section className="card">
-        <h2 className="mb-3">Настройки</h2>
-        <form action={updateClass} className="flex flex-wrap items-end gap-3">
+        <h2 className="mb-4">Настройки</h2>
+        <form action={updateClass} className="grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
           <input type="hidden" name="id" value={id} />
           <div>
             <label className="label">Название</label>
-            <input name="name" defaultValue={cls.name} className="input w-56" required />
+            <input name="name" defaultValue={cls.name} className="input" required />
           </div>
           <div>
             <label className="label">Учитель</label>
-            <select name="teacher_id" defaultValue={cls.teacher_id ?? ""} className="input w-56">
+            <select name="teacher_id" defaultValue={cls.teacher_id ?? ""} className="input">
               <option value="">— не назначен —</option>
               {teachers.map((t) => (
                 <option key={t.id} value={t.id}>{t.full_name}</option>
@@ -60,56 +70,64 @@ export default async function AdminClassPage({
         </form>
       </section>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <section className="card">
-          <h2 className="mb-3">Ученики класса ({members.length})</h2>
-          <ul className="divide-y divide-slate-100">
-            {members.map((m) => (
-              <li key={m.student_id} className="flex items-center justify-between py-2">
-                <span>
-                  {m.profiles?.full_name}{" "}
-                  <span className="text-xs text-slate-400">{emailToLogin(m.profiles?.email)}</span>
-                </span>
-                <form action={removeStudent}>
-                  <input type="hidden" name="id" value={id} />
-                  <input type="hidden" name="student_id" value={m.student_id} />
-                  <button className="btn-danger">Убрать</button>
-                </form>
-              </li>
-            ))}
-          </ul>
-          {members.length === 0 && <p className="text-sm text-slate-500">В классе пока нет учеников.</p>}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <section className="card-flat overflow-hidden">
+          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+            <h2>Ученики класса</h2>
+            <span className="badge bg-slate-100 text-slate-600">{members.length}</span>
+          </div>
+          {members.length === 0 ? (
+            <EmptyState icon="users" title="В классе пока нет учеников" text="Добавьте их справа или раздайте код класса." />
+          ) : (
+            <ul className="divide-y divide-slate-100">
+              {members.map((m) => (
+                <li key={m.student_id} className="flex items-center gap-3 px-5 py-2.5">
+                  <Avatar name={m.profiles?.full_name ?? ""} size="sm" />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium">{m.profiles?.full_name}</div>
+                    <div className="font-mono text-xs text-slate-400">{emailToLogin(m.profiles?.email)}</div>
+                  </div>
+                  <form action={removeStudent}>
+                    <input type="hidden" name="id" value={id} />
+                    <input type="hidden" name="student_id" value={m.student_id} />
+                    <button className="btn-danger btn-sm">Убрать</button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <section className="card">
-          <h2 className="mb-3">Добавить учеников</h2>
+          <h2 className="mb-4">Добавить учеников</h2>
           {available.length === 0 ? (
-            <p className="text-sm text-slate-500">
-              Свободных учеников нет. Создайте их в разделе <Link href="/admin/users">Пользователи</Link>.
-            </p>
+            <EmptyState icon="userPlus" title="Свободных учеников нет" text="Ученики могут зарегистрироваться сами по коду класса." />
           ) : (
             <form action={addStudents} className="space-y-3">
               <input type="hidden" name="id" value={id} />
-              <div className="max-h-72 space-y-1 overflow-y-auto rounded-lg border border-slate-200 p-2">
+              <div className="max-h-80 space-y-0.5 overflow-y-auto rounded-xl border border-slate-200 p-1.5">
                 {available.map((s) => (
-                  <label key={s.id} className="flex items-center gap-2 rounded px-2 py-1 text-sm hover:bg-slate-50">
-                    <input type="checkbox" name="student_id" value={s.id} />
-                    {s.full_name} <span className="text-xs text-slate-400">{emailToLogin(s.email)}</span>
+                  <label key={s.id} className="flex cursor-pointer items-center gap-3 rounded-lg px-2.5 py-2 text-sm hover:bg-slate-50">
+                    <input type="checkbox" name="student_id" value={s.id} className="h-4 w-4 accent-indigo-600" />
+                    <span className="flex-1">{s.full_name}</span>
+                    <span className="font-mono text-xs text-slate-400">{emailToLogin(s.email)}</span>
                   </label>
                 ))}
               </div>
-              <button className="btn">Добавить выбранных</button>
+              <button className="btn"><Icon name="plus" className="h-4 w-4" /> Добавить выбранных</button>
             </form>
           )}
         </section>
       </div>
 
-      <section className="card border-red-200">
-        <h2 className="mb-2 text-red-700">Удаление класса</h2>
-        <p className="mb-3 text-sm text-slate-600">Удалятся все курсы, уроки, задания и оценки этого класса.</p>
+      <section className="card border-red-100">
+        <h2 className="mb-1 text-red-700">Удаление класса</h2>
+        <p className="muted mb-3">Удалятся все курсы, уроки, задания и оценки этого класса.</p>
         <form action={deleteClass}>
           <input type="hidden" name="id" value={id} />
-          <ConfirmButton message={`Точно удалить класс «${cls.name}» со всеми данными?`}>Удалить класс</ConfirmButton>
+          <ConfirmButton message={`Точно удалить класс «${cls.name}» со всеми данными?`}>
+            <Icon name="trash" className="h-4 w-4" /> Удалить класс
+          </ConfirmButton>
         </form>
       </section>
     </div>

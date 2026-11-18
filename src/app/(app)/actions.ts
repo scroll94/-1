@@ -255,3 +255,37 @@ export async function gradeSubmission(fd: FormData) {
   revalidatePath(path);
   redirect(withMsg(path, "ok", "Оценка поставлена"));
 }
+
+// ---------- Коды классов ----------
+export async function joinClass(fd: FormData) {
+  const { profile } = await getSession();
+  const back = str(fd, "back") || "/classes";
+  const code = str(fd, "code").toUpperCase();
+  if (profile.role !== "student") redirect(withMsg(back, "error", "Вступать в класс по коду могут только ученики"));
+  if (!/^[A-Z0-9]{6}$/.test(code)) redirect(withMsg(back, "error", "Код состоит из 6 символов"));
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  const admin = createAdminClient();
+  const { data: cls } = await admin.from("classes").select("id, name").eq("join_code", code).maybeSingle();
+  if (!cls) redirect(withMsg(back, "error", "Класс с таким кодом не найден"));
+  const { error } = await admin
+    .from("class_students")
+    .upsert({ class_id: cls.id, student_id: profile.id }, { ignoreDuplicates: true });
+  if (error) redirect(withMsg(back, "error", error.message));
+  revalidatePath("/", "layout");
+  redirect(withMsg(`/classes/${cls.id}`, "ok", `Вы вступили в класс «${cls.name}»`));
+}
+
+export async function regenerateJoinCode(fd: FormData) {
+  const { supabase } = await getSession();
+  const id = str(fd, "id");
+  const back = str(fd, "back") || `/classes/${id}`;
+  const { data: allowed } = await supabase.rpc("can_edit_class", { cid: id });
+  if (allowed !== true) redirect(withMsg(back, "error", "Нет доступа"));
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  const admin = createAdminClient();
+  const code = Math.random().toString(36).slice(2, 8).toUpperCase().padEnd(6, "X");
+  const { error } = await admin.from("classes").update({ join_code: code }).eq("id", id);
+  if (error) redirect(withMsg(back, "error", "Не удалось сменить код, попробуйте ещё раз"));
+  revalidatePath(back);
+  redirect(withMsg(back, "ok", `Новый код класса: ${code}`));
+}

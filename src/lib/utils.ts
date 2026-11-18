@@ -47,3 +47,11 @@ export function withMsg(path: string, kind: "error" | "ok", text: string) {
 /** Строка из Supabase без сгенерированных типов. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Row = any;
+
+export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "Онлайн-школа";
+
+/** Логин: латиница, цифры, точка, дефис, подчёркивание — или email. */
+export function isValidLogin(v: string) {
+  const s = v.trim().toLowerCase();
+  return /^[a-z0-9._-]{3,32}$/.test(s) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+}

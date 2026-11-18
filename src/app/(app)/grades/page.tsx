@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { StatusBadge } from "@/components/StatusBadge";
+import { EmptyState, PageHeader, classGradient } from "@/components/ui";
 import { formatDate, type Row } from "@/lib/utils";
 
 export default async function GradesPage() {
@@ -23,36 +24,38 @@ export default async function GradesPage() {
 
   return (
     <div className="space-y-6">
-      <h1>Мои оценки</h1>
-      {byClass.size === 0 && <div className="card text-sm text-slate-500">Заданий пока нет.</div>}
+      <PageHeader title="Мои оценки" subtitle="Все задания и результаты по классам" />
+      {byClass.size === 0 && <div className="card-flat"><EmptyState icon="award" title="Заданий пока нет" /></div>}
       {[...byClass.entries()].map(([classId, { name, items }]) => {
         const graded = items.filter((a) => subs.get(a.id)?.status === "graded");
         const avg = graded.length
           ? Math.round(graded.reduce((sum, a) => sum + (subs.get(a.id).score / a.max_score) * 100, 0) / graded.length)
           : null;
         return (
-          <section key={classId} className="card overflow-x-auto">
-            <div className="mb-3 flex items-center justify-between">
-              <h2><Link href={`/classes/${classId}`}>{name}</Link></h2>
-              {avg !== null && <span className="badge bg-indigo-100 text-indigo-800">Средний результат: {avg}%</span>}
+          <section key={classId} className="card-flat overflow-hidden">
+            <div className={`flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r ${classGradient(classId)} px-5 py-4 text-white`}>
+              <Link href={`/classes/${classId}`} className="text-lg font-semibold text-white hover:text-white">{name}</Link>
+              {avg !== null && <span className="badge bg-white/20 py-1 text-sm text-white">Средний результат: {avg}%</span>}
             </div>
-            <table className="table">
-              <thead><tr><th>Задание</th><th>Срок</th><th>Статус</th><th>Оценка</th><th>Комментарий</th></tr></thead>
-              <tbody>
-                {items.map((a) => {
-                  const s = subs.get(a.id);
-                  return (
-                    <tr key={a.id}>
-                      <td><Link href={`/assignments/${a.id}`}>{a.title}</Link></td>
-                      <td className="whitespace-nowrap">{formatDate(a.due_at)}</td>
-                      <td><StatusBadge status={s?.status} /></td>
-                      <td className="font-semibold">{s?.status === "graded" ? `${s.score} / ${a.max_score}` : "—"}</td>
-                      <td className="max-w-xs text-slate-600">{s?.feedback ?? ""}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <div className="overflow-x-auto">
+              <table className="table">
+                <thead><tr><th>Задание</th><th>Срок</th><th>Статус</th><th>Оценка</th><th>Комментарий</th></tr></thead>
+                <tbody>
+                  {items.map((a) => {
+                    const s = subs.get(a.id);
+                    return (
+                      <tr key={a.id}>
+                        <td className="font-medium"><Link href={`/assignments/${a.id}`}>{a.title}</Link></td>
+                        <td className="whitespace-nowrap text-slate-500">{formatDate(a.due_at)}</td>
+                        <td><StatusBadge status={s?.status} /></td>
+                        <td className="font-semibold whitespace-nowrap">{s?.status === "graded" ? `${s.score} / ${a.max_score}` : "—"}</td>
+                        <td className="max-w-xs text-slate-600">{s?.feedback ?? ""}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </section>
         );
       })}

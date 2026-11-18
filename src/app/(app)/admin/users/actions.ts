@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireRole, type Role } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { loginToEmail, withMsg } from "@/lib/utils";
+import { isValidLogin, loginToEmail, withMsg } from "@/lib/utils";
 
 const PATH = "/admin/users";
 const ROLES: Role[] = ["admin", "teacher", "student"];
@@ -19,7 +19,8 @@ export async function createUser(formData: FormData) {
   const login = String(formData.get("login") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const role = parseRole(formData.get("role"));
-  if (!fullName || !login) redirect(withMsg(PATH, "error", "Укажите ФИО и логин"));
+  if (!fullName || !login) redirect(withMsg(PATH, "error", "Укажите имя и логин"));
+  if (!isValidLogin(login)) redirect(withMsg(PATH, "error", "Логин: латинские буквы, цифры, точка или дефис (3–32 символа) или email"));
   if (password.length < 6) redirect(withMsg(PATH, "error", "Пароль должен быть не короче 6 символов"));
 
   const admin = createAdminClient();
@@ -30,7 +31,7 @@ export async function createUser(formData: FormData) {
     user_metadata: { full_name: fullName },
     app_metadata: { role },
   });
-  if (error) redirect(withMsg(PATH, "error", "Не удалось создать: " + error.message));
+  if (error) redirect(withMsg(PATH, "error", /already|exists|registered/i.test(error.message) ? "Этот логин уже занят" : "Не удалось создать: " + error.message));
   revalidatePath(PATH);
   redirect(withMsg(PATH, "ok", `Пользователь «${fullName}» создан`));
 }
